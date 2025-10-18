@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: clarity
+      POSTGRES_PASSWORD: clarity
+      POSTGRES_DB: clarity
+    ports: ['5432:5432']
+    volumes: ['pgdata:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U clarity']
+      interval: 5s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: clarity
+      MONGO_INITDB_ROOT_PASSWORD: clarity
+    ports: ['27017:27017']
+    volumes: ['mongodata:/data/db']
+
+  redis:
+    image: redis:7
+    ports: ['6379:6379']
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    env_file: ['../.env']
+    environment:
+      API_PORT: 8000
+    ports: ['8000:8000']
+    depends_on:
+      - postgres
+      - mongo
+      - redis
+    command: ['bash', '-lc', 'uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload']
+
+  nlp:
+    build:
+      context: ../apps/nlp_service
+    env_file: ['../.env']
+    depends_on:
+      - redis
+    command: ['bash', '-lc', 'uv run python -m nlp.worker.consumer']
+
+  web:
+    build:
+      context: ../apps/web
+    env_file: ['../.env']
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000'
+    ports: ['3000:3000']
+    depends_on:
+      - api
+    command: ['bash', '-lc', 'pnpm dev --port 3000 --hostname 0.0.0.0']
+
+volumes:
+  pgdata:
+  mongodata:

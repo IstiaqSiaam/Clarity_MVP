@@ -1,0 +1,2 @@
+# format everything before committing
+pnpm format

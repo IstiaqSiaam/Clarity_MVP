@@ -1,0 +1,24 @@
+[project]
+name = "clarity-nlp"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "IstiaqSiaam", email = "istiaqsiaam@iut-dhaka.edu" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28.1",
+    "openai>=2.5.0",
+    "pydantic>=2.12.3",
+    "redis>=6.4.0",
+    "rq>=2.6.0",
+    "tiktoken>=0.12.0",
+]
+
+[project.scripts]
+clarity-nlp = "clarity_nlp:main"
+
+[build-system]
+requires = ["uv_build>=0.9.3,<0.10.0"]
+build-backend = "uv_build"
