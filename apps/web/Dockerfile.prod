@@ -1,0 +1,39 @@
+# Multi-stage build for production
+FROM node:20-alpine AS base
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Dependencies stage
+FROM base AS deps
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
+RUN pnpm install --frozen-lockfile
+
+# Builder stage
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Build the application
+RUN pnpm build
+
+# Runner stage (production)
+FROM base AS runner
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+# Copy built assets
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["pnpm", "start"]

@@ -1,0 +1,32 @@
+[project]
+name = "clarity-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "IstiaqSiaam", email = "istiaqsiaam@iut-dhaka.edu" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "email-validator>=2.3.0",
+    "fastapi>=0.119.0",
+    "httpx>=0.28.1",
+    "motor>=3.7.1",
+    "passlib[bcrypt]>=1.7.4",
+    "psycopg[binary]>=3.2.10",
+    "pydantic>=2.12.3",
+    "pydantic-settings>=2.11.0",
+    "python-jose[cryptography]>=3.5.0",
+    "redis>=6.4.0",
+    "rq>=2.1.0",
+    "sqlalchemy>=2.0.44",
+    "uvicorn[standard]>=0.37.0",
+]
+
+[project.scripts]
+clarity-api = "clarity_api:main"
+
+[build-system]
+requires = ["uv_build>=0.9.3,<0.10.0"]
+build-backend = "uv_build"
